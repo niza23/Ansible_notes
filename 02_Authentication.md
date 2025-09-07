@@ -195,6 +195,60 @@ ansible dbserver -i inventory.ini -m copy -a "src=~/myfile.txt dest=/tmp/myfile.
 ```bash
 ansible webserver -i inventory.ini -m service -a "name=nginx state=restarted" --become
 ```
+---
+
+## 🔹 Ad-hoc vs Playbook
+
+### 🔸 Ad-hoc Commands
+- One-liners executed directly from the CLI.
+- Great for **quick tests** or **one-time tasks**.
+- Do not get stored for reuse (unless you copy/paste somewhere).
+- Example:
+  ```bash
+  ansible webserver -i inventory.ini -m apt -a "name=nginx state=present" --become
+````
+
+### 🔸 Playbooks
+
+* Written in **YAML files** and stored in your repo.
+* Define a **set of tasks** that can be reused and version-controlled.
+* Ideal for **repeatable automation** and complex orchestration.
+* Example (`install_nginx.yaml`):
+
+  ```yaml
+  - name: Install and configure nginx
+    hosts: webserver
+    become: yes
+    tasks:
+      - name: Install nginx
+        apt:
+          name: nginx
+          state: present
+
+      - name: Start and enable nginx service
+        service:
+          name: nginx
+          state: started
+          enabled: yes
+  ```
+
+Run with:
+
+```bash
+ansible-playbook -i inventory.ini install_nginx.yaml
+```
+
+---
+
+### ✅ Key Differences
+
+| Feature         | Ad-hoc Commands           | Playbooks                             |
+| --------------- | ------------------------- | ------------------------------------- |
+| **Format**      | CLI one-liners            | YAML files                            |
+| **Use Case**    | Quick tasks, testing      | Repeatable automation, orchestration  |
+| **Reusability** | Not reusable              | Fully reusable & version-controlled   |
+| **Complexity**  | Simple, single action     | Multiple tasks, handlers, roles, etc. |
+| **Best For**    | Immediate fixes or checks | Production-ready automation           |
 
 ---
 
@@ -205,4 +259,6 @@ ansible webserver -i inventory.ini -m service -a "name=nginx state=restarted" --
 * **Passwords** work but are less secure and harder to automate.
 * Inventories can be written in **INI** or **YAML** formats.
 * Ad-hoc commands are quick, powerful one-liners for testing and small tasks.
-* For **repeatable automation**, we’ll move on to **Playbooks**.
+* Use **ad-hoc commands** for **quick checks or temporary fixes**.
+* Use **playbooks** when you need **repeatability, structure, and collaboration**.
+* In real DevOps projects, playbooks are the foundation, while ad-hoc commands are mostly for testing or troubleshooting.
