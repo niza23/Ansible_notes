@@ -39,6 +39,17 @@ This repo documents my step-by-step journey of learning Ansible as a DevOps engi
 
 ---
 
+### 3️⃣ [Ansible Playbooks]
+- What is YAML?  
+  - YAML basics (key-value, lists, dictionaries)  
+  - Rules of YAML (spaces, indentation, quotes)  
+- What is a Playbook?  
+- Syntax of a Playbook (hosts, become, vars, tasks, modules)  
+- Example Playbook (install & configure Nginx)  
+- Commonly used modules in Playbooks  
+
+---
+
 ## 🙌 Contributing
 This is mainly for personal learning, but suggestions and improvements are always welcome.  
 
