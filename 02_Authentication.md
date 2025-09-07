@@ -104,7 +104,7 @@ ec2-db ansible_host=<EC2_IP_2> ansible_user=ubuntu ansible_password=MyStrongPass
 
 ### 2. YAML-style Inventory (modern)
 
-```yaml
+```bash
 all:
   children:
     webserver:
@@ -204,9 +204,9 @@ ansible webserver -i inventory.ini -m service -a "name=nginx state=restarted" --
 - Great for **quick tests** or **one-time tasks**.
 - Do not get stored for reuse (unless you copy/paste somewhere).
 - Example:
+
   ```bash
   ansible webserver -i inventory.ini -m apt -a "name=nginx state=present" --become
-````
 
 ### 🔸 Playbooks
 
