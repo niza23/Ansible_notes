@@ -1,4 +1,3 @@
-
 # 🔐 Authentication in Ansible
 
 ## 🔹 Why is Authentication Required?
@@ -11,96 +10,87 @@ Without authentication:
 
 ---
 
-## 🔹 Authentication Methods in Ansible
+## 🔹 Authentication Methods
 1. **SSH Key-based Authentication (Recommended ✅)**
-   - More secure, no need to enter password each time.
-   - Uses a private key (on control node) and a public key (on managed node).
-   - Ideal for automation and CI/CD.
+   - Secure and reusable for automation.
+   - No need to type passwords each time.
+   - Works by sharing your **public key** with the managed node.
 
 2. **Password-based Authentication**
-   - Requires entering a password each time unless stored in a vault.
-   - Less secure and harder to manage at scale.
-   - Sometimes needed when key-based authentication is not possible.
+   - Requires entering a password on each login.
+   - Easier to set up but less secure and harder to scale.
+   - Can be useful for testing or when key-based auth isn’t available.
 
 ---
 
-## 🔹 Example Setup
-We will configure **two EC2 instances** as managed nodes:
+## 🔹 Using Public Key Authentication (EC2 Example)
 
-- **Control Node**: Local system with Ansible installed.
-- **Managed Node 1 (Web Server)**: EC2 with **SSH Key Authentication**.
-- **Managed Node 2 (DB Server)**: EC2 with **Password Authentication**.
+Normally with AWS EC2 you log in with a `.pem` file:
 
----
-
-## 🔹 Step 1: SSH Key-based Authentication
-
-### 1. Generate SSH Key (if not already done)
 ```bash
-ssh-keygen -t rsa -b 4096
+ssh -i my-key.pem ubuntu@<INSTANCE_PUBLIC_IP>
 ````
 
-This will create:
-
-* Private key: `~/.ssh/id_rsa`
-* Public key: `~/.ssh/id_rsa.pub`
-
-### 2. Copy Public Key to Managed Node 1
+But we can simplify this with `ssh-copy-id`:
 
 ```bash
-ssh-copy-id -i ~/.ssh/id_rsa.pub ec2-user@<EC2_PUBLIC_IP>
+ssh-copy-id -f "-o IdentityFile <PATH_TO_PEM_FILE>" ubuntu@<INSTANCE_PUBLIC_IP>
 ```
 
-Alternatively (for AWS EC2):
+Explanation:
+
+* `ssh-copy-id` → copies your **local public key** to the remote server.
+* `-f` → forces overwrite if needed.
+* `-o IdentityFile` → specifies the private key (`.pem`) to connect with initially.
+* `ubuntu@<INSTANCE_PUBLIC_IP>` → default username for Ubuntu EC2.
+
+✅ Once done, you can log in without needing the `.pem` file every time:
 
 ```bash
-ssh -i my-ec2-key.pem ec2-user@<EC2_PUBLIC_IP>
-```
-
-### 3. Verify Login Without Password
-
-```bash
-ssh ec2-user@<EC2_PUBLIC_IP>
-```
-
-✅ If it logs in without asking for a password, key-based authentication is working.
-
----
-
-## 🔹 Step 2: Password-based Authentication
-
-For Managed Node 2, we’ll allow Ansible to connect using a password.
-
-### 1. Enable SSH Password Authentication (on EC2)
-
-Edit `/etc/ssh/sshd_config` on Managed Node 2:
-
-```
-PasswordAuthentication yes
-```
-
-Restart SSH:
-
-```bash
-sudo systemctl restart sshd
-```
-
-### 2. Verify Password Login
-
-```bash
-ssh user@<EC2_PUBLIC_IP>
-# Enter password manually
+ssh ubuntu@<INSTANCE_PUBLIC_IP>
 ```
 
 ---
 
-## 🔹 Step 3: Ansible Inventory Configuration
+## 🔹 Using Password Authentication (EC2 Example)
 
-Create an `inventory.ini` file:
+By default, EC2 instances **disable password authentication**.
+To enable it:
+
+1. Edit the SSH config file:
+
+   ```bash
+   sudo nano /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
+   ```
+
+2. Update this line:
+
+   ```
+   PasswordAuthentication yes
+   ```
+
+3. Restart the SSH service:
+
+   ```bash
+   sudo systemctl restart ssh
+   ```
+
+4. Now you can log in with:
+
+   ```bash
+   ssh ubuntu@<INSTANCE_PUBLIC_IP>
+   # You’ll be prompted for the password
+   ```
+
+---
+
+## 🔹 Example Inventory File (Mix of Both)
+
+You can mix both methods in your Ansible `inventory.ini`:
 
 ```ini
 [webserver]
-ec2-web ansible_host=<EC2_IP_1> ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/id_rsa
+ec2-web ansible_host=<EC2_IP_1> ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
 
 [dbserver]
 ec2-db ansible_host=<EC2_IP_2> ansible_user=ubuntu ansible_password=MyStrongPassword123
@@ -108,27 +98,31 @@ ec2-db ansible_host=<EC2_IP_2> ansible_user=ubuntu ansible_password=MyStrongPass
 
 ---
 
-## 🔹 Step 4: Testing Connections
+## 🔹 Testing Authentication
 
-Ping all servers:
+Run a simple Ansible ping test:
 
 ```bash
 ansible all -i inventory.ini -m ping
 ```
 
-Expected output:
+Expected result:
 
-* `ec2-web` responds with `"pong"` via **SSH key**
-* `ec2-db` responds with `"pong"` via **password authentication**
+* `ec2-web` responds with **pong** using SSH key authentication.
+* `ec2-db` responds with **pong** using password authentication.
 
 ---
 
 ## ✅ Summary
 
-* Authentication is required for Ansible to connect to managed nodes.
-* **SSH key-based auth** is the preferred and secure way.
-* **Password-based auth** works but is less secure and harder to scale.
-* You can manage a mix of servers with different authentication methods by configuring the inventory file.
+* Authentication is mandatory for Ansible to connect to managed nodes.
+* **SSH keys** are secure and preferred.
+* **Passwords** work but are less secure and harder to automate.
+* On AWS EC2:
+
+  * You can import your own key using `ssh-copy-id`.
+  * You can enable password authentication by editing SSH config.
 
 ```
 
+---
