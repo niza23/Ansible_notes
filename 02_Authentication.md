@@ -84,9 +84,12 @@ To enable it:
 
 ---
 
-## 🔹 Example Inventory File (Mix of Both)
+## 🔹 Ansible Inventory
 
-You can mix both methods in your Ansible `inventory.ini`:
+The **inventory** is how Ansible knows *which hosts* to connect to and *how to connect*.
+It can be written in **two main formats**:
+
+### 1. INI-style Inventory (classic)
 
 ```ini
 [webserver]
@@ -96,11 +99,52 @@ ec2-web ansible_host=<EC2_IP_1> ansible_user=ubuntu ansible_ssh_private_key_file
 ec2-db ansible_host=<EC2_IP_2> ansible_user=ubuntu ansible_password=MyStrongPassword123
 ```
 
+* Groups like `[webserver]` and `[dbserver]` help organize hosts.
+* You can mix SSH key and password authentication.
+
+### 2. YAML-style Inventory (modern)
+
+```yaml
+all:
+  children:
+    webserver:
+      hosts:
+        ec2-web:
+          ansible_host: <EC2_IP_1>
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa
+    dbserver:
+      hosts:
+        ec2-db:
+          ansible_host: <EC2_IP_2>
+          ansible_user: ubuntu
+          ansible_password: MyStrongPassword123
+```
+
+* More structured and better for large environments.
+* YAML is also used in playbooks, so this keeps everything consistent.
+
 ---
 
-## 🔹 Testing Authentication
+## 🔹 Ad-hoc Commands Basics
 
-Run a simple Ansible ping test:
+Once authentication and inventory are set up, we can start running **ad-hoc commands**.
+These are **one-liners** that let you execute tasks across one or more managed nodes — no playbook required.
+
+### Syntax
+
+```bash
+ansible <host-pattern> -i <inventory> -m <module> -a "<arguments>"
+```
+
+* `<host-pattern>` → the target (e.g., `all`, `webserver`, `dbserver`)
+* `-i` → specify the inventory file
+* `-m` → the Ansible module to use
+* `-a` → arguments for the module
+
+---
+
+### 1. Test Connectivity (ping module)
 
 ```bash
 ansible all -i inventory.ini -m ping
@@ -108,8 +152,49 @@ ansible all -i inventory.ini -m ping
 
 Expected result:
 
-* `ec2-web` responds with **pong** using SSH key authentication.
-* `ec2-db` responds with **pong** using password authentication.
+```json
+"ping": "pong"
+```
+
+---
+
+### 2. Run Shell Commands (command module)
+
+```bash
+ansible webserver -i inventory.ini -m command -a "uptime"
+```
+
+---
+
+### 3. Install Packages (apt/yum module)
+
+On Ubuntu/Debian:
+
+```bash
+ansible webserver -i inventory.ini -m apt -a "name=nginx state=present" --become
+```
+
+On CentOS/RHEL:
+
+```bash
+ansible webserver -i inventory.ini -m yum -a "name=httpd state=present" --become
+```
+
+---
+
+### 4. Copy Files (copy module)
+
+```bash
+ansible dbserver -i inventory.ini -m copy -a "src=~/myfile.txt dest=/tmp/myfile.txt"
+```
+
+---
+
+### 5. Restart Services (service module)
+
+```bash
+ansible webserver -i inventory.ini -m service -a "name=nginx state=restarted" --become
+```
 
 ---
 
@@ -118,10 +203,6 @@ Expected result:
 * Authentication is mandatory for Ansible to connect to managed nodes.
 * **SSH keys** are secure and preferred.
 * **Passwords** work but are less secure and harder to automate.
-* On AWS EC2:
-
-  * You can import your own key using `ssh-copy-id`.
-  * You can enable password authentication by editing SSH config.
-
-
----
+* Inventories can be written in **INI** or **YAML** formats.
+* Ad-hoc commands are quick, powerful one-liners for testing and small tasks.
+* For **repeatable automation**, we’ll move on to **Playbooks**.
