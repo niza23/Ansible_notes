@@ -123,6 +123,5 @@ Expected result:
   * You can import your own key using `ssh-copy-id`.
   * You can enable password authentication by editing SSH config.
 
-```
 
 ---
