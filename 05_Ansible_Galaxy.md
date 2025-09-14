@@ -18,11 +18,11 @@ ansible-galaxy install geerlingguy.nginx
 ```
 
 ---
-**how to install and use a role**.
+## how to install and use a role.
 
 ---
 
-## 🔹 Installing a Role
+# 🔹 Installing a Role
 
 To install a role from **Ansible Galaxy**:
 
@@ -54,10 +54,10 @@ ansible-playbook -i inventory.ini site.yml
 That’s it ✅ — **one command to install, one snippet to use**.
 
 ---
-**how to Publish a role in Galaxy**.
+## how to Publish a role in Galaxy.
 
 ---
-## 🔹 Why Publish to Galaxy?
+# 🔹 Why Publish to Galaxy?
 
 ✅ Share your automation with the community
 ✅ Reuse roles across multiple projects
