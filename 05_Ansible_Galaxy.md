@@ -151,8 +151,43 @@ ansible-galaxy install myuser.nginx
   4. Install and reuse across projects
 
 ---
+**how to install and use a role**.
 
-⚡ With this, you can showcase both **using community roles** and **publishing your own** — a key DevOps skill for interviews.
+---
+
+## 🔹 Installing a Role
+
+To install a role from **Ansible Galaxy**:
+
+```bash
+ansible-galaxy install geerlingguy.nginx
+```
+
+This will download the role into your local roles directory (usually `~/.ansible/roles/`).
+
+---
+
+## 🔹 Using the Role in a Playbook
+
+Once installed, you can call the role inside a playbook:
+
+```yaml
+- hosts: webservers
+  become: yes
+  roles:
+    - geerlingguy.nginx
+```
+
+Run it with:
+
+```bash
+ansible-playbook -i inventory.ini site.yml
+```
+
+---
+
+That’s it ✅ — **one command to install, one snippet to use**.
+
 
 ---
 
