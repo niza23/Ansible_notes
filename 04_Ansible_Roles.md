@@ -169,32 +169,124 @@ flowchart TD
 
 ---
 
-## 🚀 Next Steps
+The `ansible-galaxy` command is used to **create, install, and manage roles**. When you want to create a new role, you use the **`init`** subcommand.
 
-Once you understand roles, you should explore:
+---
 
-1. **Ansible Galaxy**
+## 🔹 Create a New Role
 
-   * A public hub where you can share and download roles
-   * Command:
+```bash
+ansible-galaxy init <role_name>
+```
 
-     ```bash
-     ansible-galaxy init myrole   # Create a new role
-     ansible-galaxy install <role_name>
-     ```
+Example:
 
-2. **Variables & Defaults in Roles**
+```bash
+ansible-galaxy init nginx
+```
 
-   * Learn how to override defaults for flexibility
+This will create a directory structure like this:
 
-3. **Role Dependencies (meta/main.yml)**
+```
+nginx/
+├── defaults/
+│   └── main.yml
+├── files/
+├── handlers/
+│   └── main.yml
+├── meta/
+│   └── main.yml
+├── tasks/
+│   └── main.yml
+├── templates/
+├── tests/
+│   ├── inventory
+│   └── test.yml
+└── vars/
+    └── main.yml
+```
 
-   * Define which roles depend on others (e.g., DB before app)
+📌 By default, `ansible-galaxy init` creates **all the standard role directories** for you, even if you don’t use them all.
 
-4. **Molecule Testing**
+---
 
-   * A framework for testing Ansible roles
+## 🔹 Using the Role in a Playbook
 
-📌 By mastering roles, you move from **basic playbooks** → **scalable, production-ready automation**.
+Once created, you can reference the role inside a playbook:
+
+```yaml
+- hosts: webservers
+  become: yes
+  roles:
+    - nginx
+```
+
+When you run the playbook, Ansible automatically looks inside the `nginx/` role folder and executes `tasks/main.yml`.
+
+---
+
+## 🔹 Options You Can Use
+
+* **`--init-path`** → specify where to create the role
+
+```bash
+ansible-galaxy init nginx --init-path ./roles
+```
+
+This will create the role inside a `roles/` directory (best practice).
+
+* **`--offline`** → don’t check Ansible Galaxy (useful when offline).
+
+* **`--force`** → overwrite if the role already exists.
+
+---
+
+## 🔹 Workflow Example
+
+1. Create a roles directory (if not already present):
+
+   ```bash
+   mkdir roles
+   cd roles
+   ```
+
+2. Create a new role:
+
+   ```bash
+   ansible-galaxy init nginx
+   ```
+
+3. Add tasks inside `roles/nginx/tasks/main.yml`:
+
+   ```yaml
+   ---
+   - name: Install nginx
+     apt:
+       name: nginx
+       state: present
+   ```
+
+4. Call the role in your playbook (`site.yml`):
+
+   ```yaml
+   - hosts: webservers
+     become: yes
+     roles:
+       - nginx
+   ```
+
+5. Run the playbook:
+
+   ```bash
+   ansible-playbook -i inventory site.yml
+   ```
+
+---
+
+✅ In short:
+
+* Use `ansible-galaxy init <role>` → creates a role skeleton
+* Add your tasks, handlers, templates, etc. inside that role
+* Reference the role in your playbooks
 
 ---
