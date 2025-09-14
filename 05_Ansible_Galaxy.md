@@ -22,7 +22,7 @@ ansible-galaxy install geerlingguy.nginx
 
 ---
 
-# 🔹 Installing a Role
+### 🔹 Installing a Role
 
 To install a role from **Ansible Galaxy**:
 
@@ -57,7 +57,7 @@ That’s it ✅ — **one command to install, one snippet to use**.
 ## how to Publish a role in Galaxy.
 
 ---
-# 🔹 Why Publish to Galaxy?
+### 🔹 Why Publish to Galaxy?
 
 ✅ Share your automation with the community
 ✅ Reuse roles across multiple projects
