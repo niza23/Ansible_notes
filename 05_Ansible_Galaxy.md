@@ -51,8 +51,6 @@ Run it with:
 ansible-playbook -i inventory.ini site.yml
 ```
 
----
-
 That’s it ✅ — **one command to install, one snippet to use**.
 
 ---
