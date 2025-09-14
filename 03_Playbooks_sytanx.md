@@ -3,7 +3,6 @@
 # 📘 Ansible – Playbooks & Core Concepts
 
 This repository is a **comprehensive guide to Ansible basics and core concepts**, written in simple terms with practical examples.
-It is designed to be **DevOps interview-ready** and a quick refresher for day-to-day automation.
 
 ---
 
